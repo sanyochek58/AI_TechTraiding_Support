@@ -1,16 +1,27 @@
 plugins {
     id("java")
+    application
 }
 
-group = "com.example"
+group = "com.example.aitraiding"
 version = "1.0-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+application {
+    mainClass.set("com.example.aitraiding.Main")
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.1")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
