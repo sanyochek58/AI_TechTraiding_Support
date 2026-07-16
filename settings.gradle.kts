@@ -1,0 +1,1 @@
+rootProject.name = "Ai_Traiding_system"
