@@ -1,4 +1,6 @@
-package com.example.aitraiding.marketdata.domain;
+package com.example.aitraiding.strategy.domain;
+
+import com.example.aitraiding.marketdata.domain.Candle;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

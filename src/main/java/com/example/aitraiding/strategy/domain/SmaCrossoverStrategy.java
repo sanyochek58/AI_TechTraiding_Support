@@ -1,7 +1,6 @@
 package com.example.aitraiding.strategy.domain;
 
 import com.example.aitraiding.marketdata.domain.Candle;
-import com.example.aitraiding.marketdata.domain.SmaCalculator;
 
 import java.math.BigDecimal;
 import java.util.List;
