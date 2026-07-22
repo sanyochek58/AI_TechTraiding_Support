@@ -2,6 +2,7 @@ package com.example.aitraiding.strategy.application;
 
 import com.example.aitraiding.marketdata.domain.Candle;
 import com.example.aitraiding.strategy.domain.Signal;
+import com.example.aitraiding.strategy.domain.SignalListener;
 import com.example.aitraiding.strategy.domain.SignalStrategy;
 
 import java.util.ArrayDeque;
@@ -15,11 +16,13 @@ public class SignalGenerationService {
     private final int period;
     private final Deque<Candle> buffer = new ArrayDeque<>();
     private final int maxBufferSize;
+    private final SignalListener listener;
 
-    public SignalGenerationService(SignalStrategy strategy, int period, int maxBufferSize) {
+    public SignalGenerationService(SignalStrategy strategy, int period, int maxBufferSize, SignalListener listener) {
         this.strategy = strategy;
         this.period = period;
         this.maxBufferSize = maxBufferSize;
+        this.listener = listener;
     }
 
     public void initializeWithHistory(List<Candle> historicalCandles){
@@ -41,7 +44,7 @@ public class SignalGenerationService {
         if (buffer.size() >= period) {
             List<Candle> candleList = new ArrayList<>(buffer);
             Signal signal = strategy.generateSignal(candleList);
-            System.out.println("Новый сигнал: " + signal + " | по свече: " + candle);
+            listener.onSignalGenerated(signal, candle);
         }
     }
 }

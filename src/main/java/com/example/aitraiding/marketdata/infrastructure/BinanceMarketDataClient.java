@@ -13,7 +13,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.WebSocket;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +78,9 @@ public class BinanceMarketDataClient implements MarketDataProvider {
      * Формат одного элемента: [openTime, open, high, low, close, volume, ...]
      * (последующие поля ответа Binance для наших задач пока не нужны).
      */
-    private List<Candle> parseKlinesResponse(String json, String symbol) {
+    // package-private, а не private — чтобы юнит-тест мог проверить парсинг
+    // "сырого" ответа Binance напрямую, без реального HTTP-вызова.
+    List<Candle> parseKlinesResponse(String json, String symbol) {
         ObjectMapper mapper = new ObjectMapper();
         List<Candle> candles = new ArrayList<>();
 
@@ -115,4 +116,5 @@ public class BinanceMarketDataClient implements MarketDataProvider {
             throw new MarketDataFetchException("Ошибка парсинга ответа Binance", e);
         }
     }
+
 }

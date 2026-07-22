@@ -6,19 +6,18 @@ import com.example.aitraiding.marketdata.domain.Candle;
 import com.example.aitraiding.marketdata.domain.LiveCandleSubscriber;
 import com.example.aitraiding.marketdata.domain.MarketDataProvider;
 import com.example.aitraiding.marketdata.infrastructure.BinanceKlineWebSocketClient;
+import com.example.aitraiding.signalhistory.application.SignalHistoryService;
+import com.example.aitraiding.signalhistory.domain.SignalHistoryRepository;
+import com.example.aitraiding.signalhistory.domain.SignalRecord;
+import com.example.aitraiding.signalhistory.infrastructure.SqliteSignalHistoryRepository;
 import com.example.aitraiding.strategy.application.SignalGenerationService;
 import com.example.aitraiding.strategy.domain.SmaCalculator;
 import com.example.aitraiding.marketdata.infrastructure.BinanceMarketDataClient;
-import com.example.aitraiding.strategy.domain.Signal;
 import com.example.aitraiding.strategy.domain.SignalStrategy;
 import com.example.aitraiding.strategy.domain.SmaCrossoverStrategy;
 
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.WebSocket;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 public class Main  {
     public static void main(String[] args) throws InterruptedException {
@@ -34,9 +33,22 @@ public class Main  {
         BigDecimal result = calculator.calculateSma(candles, 5);
         System.out.println("Среднее значение цены в результате торгов: " + result);
 
+        // ----------------------------------------------------------------------------
+
+        String dbUrl = "jdbc:sqlite:/Users/admin/DataGripProjects/Ai_Traiding_system_db/signals.db";
+        SignalHistoryRepository historyRepository = new SqliteSignalHistoryRepository(dbUrl);
+        SignalHistoryService historyService = new SignalHistoryService(historyRepository);
 
         SignalStrategy strategy = new SmaCrossoverStrategy(calculator, 5);
-        SignalGenerationService signalGenerationService = new SignalGenerationService(strategy,5, 10);
+        SignalGenerationService signalGenerationService = new SignalGenerationService(strategy, 5, 10,
+                (signal, candle) -> {
+                    System.out.println("Новый сигнал: " + signal + " | по свече: " + candle);
+
+                    SignalRecord record = new SignalRecord(
+                            candle.symbol(), signal, candle.close(), candle.openTime()
+                    );
+                    historyService.save(record);
+                });
 
         signalGenerationService.initializeWithHistory(candles);
 
@@ -45,7 +57,7 @@ public class Main  {
             signalGenerationService.onNewCandle(candle);
         });
 
-        Thread.sleep(600_000);
+        Thread.sleep(2_400_000);
 
     }
 }
